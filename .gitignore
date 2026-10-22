@@ -24,7 +24,7 @@ dist/
 .angular/
 
 # Orchestration artifacts
-.status-report.md
-.change-request.md
+.status-report*.md
+.change-request*.md
 .briefings/
 *.bak.*

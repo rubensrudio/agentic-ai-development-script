@@ -28,7 +28,10 @@ Python schemas, update the TypeScript mirror and regenerate `openapi.json`.
 - `is_admin = true` grants every scope.
 - Missing token or invalid/expired token or inactive user → **401**. Missing scope → **403**.
 - Privilege-escalation guards, enforced in `PATCH`/`POST`/`DELETE /api/users`:
-  - Only admins may set `is_admin` or send any granted permission flag (403 `Only admins can manage permissions`).
+  - Only admins may manage privileges (403 `Only admins can manage permissions`):
+    on `POST`, a non-admin sending `is_admin=true` or any `true` permission flag;
+    on `PATCH`, a non-admin sending the `is_admin` or `permissions` field at all.
+  - `permissions` listing the same module twice → 422 `Duplicate module in permissions`.
   - Non-admins cannot update or delete admin users (403 `Only admins can manage admin users`).
   - Nobody can delete themselves (400 `You cannot delete yourself`).
   - Nobody can set `is_active=false` or `is_admin=false` on themselves (400 `You cannot deactivate or demote yourself`).

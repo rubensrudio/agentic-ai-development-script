@@ -86,7 +86,7 @@ class UserUpdate(BaseModel):
 
     ``username`` is immutable. ``password`` is an admin-style reset (no current
     password needed). ``permissions`` replaces the whole matrix when sent.
-    ``is_admin`` and ``permissions`` are admin-only (403 otherwise).
+    A non-admin sending ``is_admin`` or ``permissions`` at all gets 403.
     """
 
     email: EmailStr | None = None
