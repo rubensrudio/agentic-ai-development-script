@@ -1,10 +1,11 @@
 # OWNER: agent auth-users
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import DbSession, require_permission
 from app.models import User
+from app.services import users as users_service
 from contracts.permissions import Action, Module
 from contracts.schemas import (
     PAGE_SIZE_DEFAULT,
@@ -33,7 +34,10 @@ def list_users(
     q: Annotated[str | None, Query(max_length=100)] = None,
 ) -> UserPage:
     """Ordered by id. ``q`` matches username, email or full_name (ILIKE)."""
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    items, total = users_service.list_users(db, page, size, q)
+    return UserPage(
+        items=[UserRead.model_validate(u) for u in items], total=total, page=page, size=size
+    )
 
 
 @router.post(
@@ -48,7 +52,7 @@ def create_user(
     user: Annotated[User, Depends(require_permission(Module.USERS, Action.CREATE))],
 ) -> UserRead:
     """409 ``Username already registered`` / ``Email already registered``."""
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    return UserRead.model_validate(users_service.create_user(db, user, body))
 
 
 @router.get("/{user_id}", response_model=UserRead, responses=ERRORS)
@@ -57,7 +61,7 @@ def get_user(
     db: DbSession,
     user: Annotated[User, Depends(require_permission(Module.USERS, Action.LIST))],
 ) -> UserRead:
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    return UserRead.model_validate(users_service.get_user(db, user_id))
 
 
 @router.patch(
@@ -73,7 +77,7 @@ def update_user(
 ) -> UserRead:
     """Non-admins cannot modify admin users nor send is_admin/permissions (403).
     Nobody can deactivate or demote themselves (400)."""
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    return UserRead.model_validate(users_service.update_user(db, user, user_id, body))
 
 
 @router.delete(
@@ -87,4 +91,4 @@ def delete_user(
     user: Annotated[User, Depends(require_permission(Module.USERS, Action.DELETE))],
 ) -> None:
     """400 ``You cannot delete yourself``. Non-admins cannot delete admins (403)."""
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    users_service.delete_user(db, user, user_id)

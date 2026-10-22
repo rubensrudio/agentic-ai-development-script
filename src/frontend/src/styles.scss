@@ -36,4 +36,17 @@ body {
   margin: 0;
   height: 100%;
 }
-/* You can add global styles to this file, and also import other style files */
+
+app-root {
+  display: block;
+  height: 100%;
+}
+
+// Material Symbols are rendered as ligatures by <mat-icon fontSet="material-symbols-outlined">.
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}

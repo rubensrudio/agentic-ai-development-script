@@ -45,7 +45,8 @@ Python schemas, update the TypeScript mirror and regenerate `openapi.json`.
 - Unknown id → **404** `User not found` / `Company not found`.
 - Duplicates → **409** `Username already registered`, `Email already registered`,
   `Tax ID already registered`.
-- Validation errors → **422** (FastAPI default body).
+- Validation errors → **422** (FastAPI default body). `tax_id` is stripped before
+  it is stored or compared, and a blank value → **422** `Tax ID cannot be blank`.
 - `DELETE` returns **204** (hard delete). Deleting a user leaves companies
   with `created_by_id = null`.
 - `UserRead.permissions` always has one entry per module, in module order.

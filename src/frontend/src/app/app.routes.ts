@@ -45,7 +45,8 @@ export const routes: Routes = [
       {
         path: 'users/:id',
         canActivate: [scopeGuard],
-        data: { scope: 'users:update' },
+        // The edit page loads the record with GET, which needs `list`.
+        data: { scope: ['users:list', 'users:update'] },
         title: 'Edit user',
         loadComponent: () => import('./features/users/user-form.page').then((m) => m.UserFormPage),
       },
@@ -68,7 +69,7 @@ export const routes: Routes = [
       {
         path: 'companies/:id',
         canActivate: [scopeGuard],
-        data: { scope: 'companies:update' },
+        data: { scope: ['companies:list', 'companies:update'] },
         title: 'Edit company',
         loadComponent: () =>
           import('./features/companies/company-form.page').then((m) => m.CompanyFormPage),

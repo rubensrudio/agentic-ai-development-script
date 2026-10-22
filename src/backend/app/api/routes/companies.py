@@ -1,10 +1,11 @@
 # OWNER: agent companies
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import DbSession, require_permission
 from app.models import User
+from app.services import companies as service
 from contracts.permissions import Action, Module
 from contracts.schemas import (
     PAGE_SIZE_DEFAULT,
@@ -33,7 +34,7 @@ def list_companies(
     q: Annotated[str | None, Query(max_length=100)] = None,
 ) -> CompanyPage:
     """Ordered by name, then id. ``q`` matches name, legal_name or tax_id (ILIKE)."""
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    return service.list_companies(db, page, size, q)
 
 
 @router.post(
@@ -48,7 +49,7 @@ def create_company(
     user: Annotated[User, Depends(require_permission(Module.COMPANIES, Action.CREATE))],
 ) -> CompanyRead:
     """Sets created_by_id to the current user. 409 ``Tax ID already registered``."""
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    return CompanyRead.model_validate(service.create_company(db, body, user))
 
 
 @router.get("/{company_id}", response_model=CompanyRead, responses=ERRORS)
@@ -57,7 +58,7 @@ def get_company(
     db: DbSession,
     user: Annotated[User, Depends(require_permission(Module.COMPANIES, Action.LIST))],
 ) -> CompanyRead:
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    return CompanyRead.model_validate(service.get_company(db, company_id))
 
 
 @router.patch(
@@ -71,7 +72,7 @@ def update_company(
     db: DbSession,
     user: Annotated[User, Depends(require_permission(Module.COMPANIES, Action.UPDATE))],
 ) -> CompanyRead:
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    return CompanyRead.model_validate(service.update_company(db, company_id, body))
 
 
 @router.delete("/{company_id}", status_code=status.HTTP_204_NO_CONTENT, responses=ERRORS)
@@ -81,4 +82,4 @@ def delete_company(
     user: Annotated[User, Depends(require_permission(Module.COMPANIES, Action.DELETE))],
 ) -> None:
     """Hard delete."""
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    service.delete_company(db, company_id)

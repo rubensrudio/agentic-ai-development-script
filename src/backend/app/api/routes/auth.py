@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.deps import DbSession
+from app.core.security import create_access_token
+from app.services import users as users_service
 from contracts.schemas import ErrorResponse, Token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -20,4 +22,12 @@ def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession) 
     ``WWW-Authenticate: Bearer``) for unknown user, wrong password or inactive
     user. The token carries the user's effective scopes; requested
     ``form.scopes`` are ignored."""
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Not implemented")
+    user = users_service.authenticate(db, form.username, form.password)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token, expires_in = create_access_token(user.id, user.scopes)
+    return Token(access_token=access_token, expires_in=expires_in)

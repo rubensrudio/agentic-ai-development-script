@@ -1689,7 +1689,7 @@
         },
         "type": "object",
         "title": "UserUpdate",
-        "description": "Body of ``PATCH /api/users/{user_id}``; only fields sent are changed.\n\n``username`` is immutable. ``password`` is an admin-style reset (no current\npassword needed). ``permissions`` replaces the whole matrix when sent.\n``is_admin`` and ``permissions`` are admin-only (403 otherwise)."
+        "description": "Body of ``PATCH /api/users/{user_id}``; only fields sent are changed.\n\n``username`` is immutable. ``password`` is an admin-style reset (no current\npassword needed). ``permissions`` replaces the whole matrix when sent.\nA non-admin sending ``is_admin`` or ``permissions`` at all gets 403."
       },
       "ValidationError": {
         "properties": {

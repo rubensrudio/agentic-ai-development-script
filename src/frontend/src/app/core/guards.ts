@@ -19,8 +19,13 @@ export const guestGuard: CanActivateFn = async () => {
   return (await auth.ensureSession()) ? inject(Router).createUrlTree(['/']) : true;
 };
 
-/** Requires `route.data.scope` (e.g. 'companies:list'); otherwise redirects home. Use after authGuard. */
+/**
+ * Requires every scope in `route.data.scope` (a scope or a list, e.g. 'companies:list');
+ * otherwise redirects home. Use after authGuard.
+ */
 export const scopeGuard: CanActivateFn = (route) => {
-  const scope = route.data['scope'] as Scope | undefined;
-  return !scope || inject(AuthService).hasScope(scope) ? true : inject(Router).createUrlTree(['/']);
+  const required = route.data['scope'] as Scope | Scope[] | undefined;
+  const scopes = required === undefined ? [] : Array.isArray(required) ? required : [required];
+  const auth = inject(AuthService);
+  return scopes.every((scope) => auth.hasScope(scope)) ? true : inject(Router).createUrlTree(['/']);
 };
